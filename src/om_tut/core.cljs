@@ -1,6 +1,9 @@
 (ns ^:figwheel-always om-tut.core
-    (:require [om.core :as om :include-macros true]
-              [om.dom :as dom :include-macros true]))
+  (:require-macros [cljs.core.async.macros :refer [go]])
+  (:require [figwheel.client :as fw]
+            [om.core :as om :include-macros true]
+            [om.dom :as dom :include-macros true]
+            [cljs.core.async :as async :refer [<!]]))
 
 (enable-console-print!)
 
@@ -11,17 +14,36 @@
 (defn- display-name [{:keys [first last]}]
   (str first " " last))
 
-(defn- contact-view [contact owner]
-  (om/component
-    (dom/li #js {:className "contact"}
-      (dom/span nil (display-name contact)))))
+(defn- contact-view [contact _]
+  (reify
+    om/IRenderState
+    (render-state [_ {:keys [delete]}]
+      (dom/li #js {:className "contact"}
+              (dom/span nil (display-name contact))
+              (dom/button #js {:onClick (fn [_] (async/put! delete @contact))} "Delete")))))
 
-(defn- contacts-view [data owner]
-  (om/component
-    (dom/div nil
-      (dom/h2 nil "Contacts")
-      (apply dom/ul nil
-        (om/build-all contact-view (:contacts data))))))
+(defn contacts-view [data owner]
+  (reify
+    om/IInitState
+    (init-state [_]
+      {:delete (async/chan)})
+
+    om/IWillMount
+    (will-mount [_]
+      (let [delete (om/get-state owner :delete)]
+        (go (loop []
+              (let [contact (<! delete)]
+                (om/transact! data :contacts
+                              (fn [xs] (vec (remove #(= contact %) xs))))
+                (recur))))))
+
+    om/IRenderState
+    (render-state [_ {:keys [delete]}]
+      (dom/div nil
+               (dom/h2 nil "Contact list")
+               (apply dom/ul nil
+                      (om/build-all contact-view (:contacts data)
+                                    {:init-state {:delete delete}}))))))
 
 (defonce app-state (atom {:contacts [{:first "Ben" :last "Bitdiddle" :email "benb@mit.edu"}
                                      {:first "Alyssa" :middle-initial "P" :last "Hacker" :email "aphacker@mit.edu"}
