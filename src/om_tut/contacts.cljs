@@ -3,7 +3,8 @@
   (:require [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]
             [cljs.core.async :as async :refer [<!]]
-            [clojure.string :as string]))
+            [clojure.string :as string]
+            [om-tut.util :as util]))
 
 (defn- parse-contact [contact-str]
   (let [[first middle last :as parts] (string/split contact-str #"\s+")
@@ -26,15 +27,12 @@
       (om/set-state! owner :text value)
       (om/set-state! owner :text text))))
 
-(defn- display-name [{:keys [first last]}]
-  (str first " " last))
-
 (defn- contact-view [contact _]
   (reify
     om/IRenderState
     (render-state [_ {:keys [delete]}]
       (dom/li #js {:className "contact"}
-              (dom/span nil (display-name contact))
+              (dom/span nil (util/display-name contact))
               (dom/button #js {:onClick (fn [e]
                                           (async/put! delete @contact)
                                           (.preventDefault e))}
