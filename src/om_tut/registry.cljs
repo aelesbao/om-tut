@@ -1,6 +1,7 @@
 (ns ^:figwheel-always om-tut.registry
   (:require [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]
+            [om-tut.components.editable :as e-com]
             [om-tut.util :as util]))
 
 (defn- student-view [student _]
@@ -17,7 +18,7 @@
               (dom/div nil (util/display-name professor))
               (dom/label nil "Classes")
               (apply dom/ul nil
-                     (map #(dom/li nil %) (:classes professor)))))))
+                     (map #(dom/li nil (om/value %)) (:classes professor)))))))
 
 (defmulti entry-view (fn [person _] (:type person)))
 (defmethod entry-view :student [person owner] (student-view person owner))
@@ -33,10 +34,15 @@
                  x)))))
 
 (defn registry-view [data _]
-  (reify
-    om/IRender
-    (render [_]
-      (dom/div #js {:id "registry"}
-               (dom/h2 nil "Registry")
-               (apply dom/ul nil
-                      (om/build-all entry-view (people data)))))))
+  (om/component
+    (dom/div #js {:id "registry"}
+             (dom/h2 nil "Registry")
+             (apply dom/ul nil
+                    (om/build-all entry-view (people data))))))
+
+(defn classes-view [data _]
+  (om/component
+    (dom/div #js {:id "classes"}
+             (dom/h2 nil "Classes")
+             (apply dom/ul nil
+                    (om/build-all e-com/editable (vals (:classes data)))))))
