@@ -18,7 +18,7 @@
               (dom/div nil (util/display-name professor))
               (dom/label nil "Classes")
               (apply dom/ul nil
-                     (map #(dom/li nil (om/value %)) (:classes professor)))))))
+                     (om/build-all e-com/editable (:classes professor)))))))
 
 (defmulti entry-view (fn [person _] (:type person)))
 (defmethod entry-view :student [person owner] (student-view person owner))
