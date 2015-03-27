@@ -5,7 +5,7 @@
             [om-tut.util :as util]))
 
 (defn- handle-change [e text _]
-  (om/transact! text (fn [_] (.. e -target -value))))
+  (om/update! text (.. e -target -value)))
 
 (defn- commit-change [_ owner]
   (om/set-state! owner :editing false))

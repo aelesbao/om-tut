@@ -4,6 +4,21 @@ body {
   font-family: Helvetica, Arial, Verdana;
 }
 
+#registry {
+  float: left;
+  border-right: 1px solid #f0f0f0;
+  padding-right: 50px;
+}
+
+#classes {
+  float: left;
+  padding-left: 20px;
+}
+
+#actions {
+  clear: both;
+}
+
 ul li input {
   width: 400px;
 }

@@ -31,14 +31,14 @@
 
 (defcomponent registry-view [data _]
   (render [_]
-    (dom/div {:id "registry"}
-             (dom/h2 "Registry")
-             (apply dom/ul
-                    (om/build-all entry-view (people data))))))
+    (dom/div
+      (dom/h2 "Registry")
+      (apply dom/ul
+             (om/build-all entry-view (people data))))))
 
 (defcomponent classes-view [data _]
   (render [_]
-    (dom/div {:id "classes"}
-             (dom/h2 "Classes")
-             (apply dom/ul
-                    (om/build-all e-com/editable (vals (:classes data)))))))
+    (dom/div
+      (dom/h2 "Classes")
+      (apply dom/ul
+             (om/build-all e-com/editable (vals (:classes data)))))))
